@@ -5,5 +5,5 @@ if not exist .venv\Scripts\python.exe (
   pause
   exit /b 1
 )
-.venv\Scripts\python.exe diagnostico.py
+.venv\Scripts\python.exe -m escuchator --diagnose
 pause

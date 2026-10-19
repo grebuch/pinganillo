@@ -1,8 +1,0 @@
-openai>=1.68,<3
-numpy>=1.26,<3
-SoundCard>=0.4.3,<0.5
-faster-whisper>=1.1,<2
-requests>=2.32,<3
-PyJWT[crypto]>=2.10,<3
-scipy>=1.11,<2
-PyAudioWPatch>=0.2.12.6,<0.3; sys_platform == "win32"

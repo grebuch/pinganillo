@@ -1,0 +1,64 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "escuchator"
+version = "0.6.0"
+description = "Local-first live meeting copilot: on-device transcription, live concept explanations and answer hints."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "grebuch" }]
+keywords = ["whisper", "transcription", "meetings", "llm", "ollama", "local-first", "wasapi"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+dependencies = [
+    "numpy>=1.26,<3",
+    "scipy>=1.11,<2",
+    "faster-whisper>=1.1,<2",
+    "openai>=1.68,<3",
+    "requests>=2.32,<3",
+    "PyJWT[crypto]>=2.10,<3",
+    "SoundCard>=0.4.3,<0.5",
+    "PyAudioWPatch>=0.2.12.6,<0.3; sys_platform == 'win32'",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+escuchator = "escuchator.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/grebuch/escuchator"
+Issues = "https://github.com/grebuch/escuchator/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/escuchator"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["src", "tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]  # Spanish text legitimately uses typographic characters
+
+[tool.ruff.lint.per-file-ignores]
+"src/escuchator/ui/tk_app.py" = ["E501", "SIM102", "UP031"]  # legacy UI, replaced by the Qt UI
