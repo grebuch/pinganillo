@@ -121,7 +121,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the project layout, how to add a lang
 
 ## How this was built
 
-Pinganillo started as a Windows prototype called *Escuchator*, written with ChatGPT's help. It was then restructured, tested and documented with Claude's help, one reviewed commit at a time; the [history](https://github.com/grebuch/pinganillo/commits/main) shows that path. The reasoning behind every design decision is written down in [`docs/decisions`](docs/decisions).
+Pinganillo started as a Windows prototype called *Escuchator*, written with ChatGPT's help. It was then restructured, tested and documented one reviewed commit at a time; the [history](https://github.com/grebuch/pinganillo/commits/main) shows that path. The reasoning behind every design decision is written down in [`docs/decisions`](docs/decisions).
 
 ## License
 

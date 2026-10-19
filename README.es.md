@@ -89,7 +89,7 @@ Detalles en [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Cómo se ha hecho
 
-Pinganillo empezó como un prototipo para Windows llamado *Escuchator*, escrito con ayuda de ChatGPT. Después se reestructuró, se probó y se documentó con ayuda de Claude, cambio a cambio; el [historial](https://github.com/grebuch/pinganillo/commits/main) muestra ese camino.
+Pinganillo empezó como un prototipo para Windows llamado *Escuchator*, escrito con ayuda de ChatGPT. Después se reestructuró, se probó y se documentó cambio a cambio; el [historial](https://github.com/grebuch/pinganillo/commits/main) muestra ese camino.
 
 ## Licencia
 
