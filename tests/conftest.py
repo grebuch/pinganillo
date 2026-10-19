@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import time
+
 import numpy as np
 import pytest
 
@@ -22,7 +24,11 @@ class FakeRecorder:
     def record(self, numframes):
         if self.blocks:
             return self.blocks.pop(0)
-        self.session_ref["session"].stop.set()
+        session = self.session_ref.get("session")
+        if session is None:  # the test has not attached the session yet: keep "playing" silence
+            time.sleep(0.01)
+        else:
+            session.stop.set()
         return np.zeros((numframes, 2), np.float32)
 
 

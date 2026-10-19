@@ -1,0 +1,24 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: Paste the JSON from "Save diagnostics…" or the report from diagnose-windows.bat. They contain no audio or transcript, but check device names before posting.
+      render: json
+  - type: input
+    id: setup
+    attributes:
+      label: Windows version, capture engine, Whisper model and AI provider

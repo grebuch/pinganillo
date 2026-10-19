@@ -77,3 +77,45 @@ def test_main_window_builds_and_renders_session_events(qt_app, tmp_path):
     transcript = window.transcript_view.toPlainText()
     assert "hello" in transcript and "HTTP 429" in transcript
     window.close()
+
+
+def _wait(app, window, condition, seconds=20):
+    import time
+
+    deadline = time.monotonic() + seconds
+    while not condition() and time.monotonic() < deadline:
+        app.processEvents()
+        window.poll()
+        time.sleep(0.02)
+    return condition()
+
+
+def test_start_button_runs_a_real_session(qt_app, monkeypatch, speech_block):
+    """Start → local Whisper (faked) → transcript in the UI → Stop."""
+    import sys
+    from types import SimpleNamespace
+
+    from conftest import FakeDevice
+    from escuchator.config import Settings
+    from escuchator.ui.main_window import MainWindow
+
+    class Model:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def transcribe(self, audio, **kwargs):
+            return iter([SimpleNamespace(text="Hola desde Whisper")]), None
+
+    monkeypatch.setitem(sys.modules, "faster_whisper", SimpleNamespace(WhisperModel=Model))
+    device = FakeDevice([speech_block()] * 10)
+    window = MainWindow(
+        Settings(notice_acknowledged=True), devices_fn=lambda engine: ([device], 0), persist=False
+    )
+    window.start_button.click()
+    assert window.session is not None and window.session.running
+    device.ref["session"] = window.session  # the fake recorder stops the session after its blocks
+    assert _wait(qt_app, window, lambda: not window.session.running)
+    window.poll()
+    assert "Hola desde Whisper" in window.transcript_view.toPlainText()
+    assert window.start_button.text() == "Start listening"
+    window.close()
