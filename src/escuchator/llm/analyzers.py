@@ -84,21 +84,64 @@ class ChatGPTPlanAnalyzer:
         return "".join(parts)
 
 
-class PaidApiAnalyzer:
-    """OpenAI API with the user's own key (billed separately)."""
+class OpenAICompatibleAnalyzer:
+    """Any server that speaks the OpenAI Chat Completions API.
 
-    def __init__(self, key: str, model: str = "gpt-4.1-mini") -> None:
-        from openai import OpenAI
+    That covers fully local runtimes (Ollama, LM Studio, llama.cpp server,
+    vLLM) as well as hosted APIs (OpenAI, Groq, OpenRouter, Mistral...).
+    JSON mode is requested; servers that reject ``response_format`` are
+    retried once without it and the strict parser still validates the reply.
+    """
 
-        self.client = OpenAI(api_key=key, timeout=30, max_retries=1)
-        self.model = model
+    def __init__(self, base_url: str, model: str, api_key: str = "", timeout: float = 45) -> None:
+        self.base_url, self.model = base_url.rstrip("/"), model
+        self.api_key = api_key or "not-needed"  # local servers ignore it, the SDK requires one
+        self.json_mode = True
+        self.guard = DeadlineCall(timeout)
+        self.diagnostic: dict[str, Any] = {"state": "untested"}
+        self._client: Any = None
+
+    @property
+    def client(self) -> Any:
+        if self._client is None:
+            from openai import OpenAI
+
+            self._client = OpenAI(base_url=self.base_url, api_key=self.api_key, timeout=30, max_retries=0)
+        return self._client
 
     def analyze(self, instructions: str, payload: str) -> str:
-        return self.client.responses.create(
-            model=self.model,
-            instructions=instructions,
-            input=payload,
-            text={"format": {"type": "json_object"}},
-            max_output_tokens=2200,
-            store=False,
-        ).output_text
+        self.diagnostic = {"state": "waiting"}
+        try:
+            result = self.guard.call(lambda: self._request(instructions, payload))
+            self.diagnostic = {"state": "completed"}
+            return result
+        except Exception as exc:
+            self.diagnostic = {
+                "state": "error",
+                "type": type(exc).__name__,
+                "http_status": getattr(exc, "status_code", None),
+            }
+            raise
+
+    def _request(self, instructions: str, payload: str) -> str:
+        messages = [{"role": "system", "content": instructions}, {"role": "user", "content": payload}]
+        options: dict[str, Any] = {"model": self.model, "messages": messages, "temperature": 0.2}
+        if self.json_mode:
+            try:
+                response = self.client.chat.completions.create(
+                    **options, response_format={"type": "json_object"}
+                )
+            except Exception as exc:
+                if getattr(exc, "status_code", None) not in (400, 422):
+                    raise
+                self.json_mode = False  # server does not support JSON mode; remember that
+                response = self.client.chat.completions.create(**options)
+        else:
+            response = self.client.chat.completions.create(**options)
+        choice = response.choices[0]
+        if getattr(choice, "finish_reason", "stop") == "length":
+            raise ValueError("The model reply was cut off (length limit); it will not be shown.")
+        return choice.message.content or ""
+
+    def list_models(self) -> list[str]:
+        return sorted(m.id for m in self.client.models.list())

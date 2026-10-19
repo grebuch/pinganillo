@@ -11,7 +11,7 @@ from tkinter.scrolledtext import ScrolledText
 
 from ..audio.devices import list_devices
 from ..auth.chatgpt import ChatGPTAuth
-from ..llm.analyzers import ChatGPTPlanAnalyzer, NoAnalyzer, PaidApiAnalyzer
+from ..llm.analyzers import ChatGPTPlanAnalyzer, NoAnalyzer, OpenAICompatibleAnalyzer
 from ..llm.parsing import parse_analysis
 from ..llm.prompt import instructions
 from ..pipeline import Session
@@ -409,7 +409,10 @@ class App:
                 "Has seleccionado API de pago. Esta sesión genera costes aparte de ChatGPT. ¿Iniciar?",
             ):
                 return
-            transcriber, analyzer = self.local_transcriber, PaidApiAnalyzer(self.key.get().strip())
+            transcriber, analyzer = (
+                self.local_transcriber,
+                OpenAICompatibleAnalyzer("https://api.openai.com/v1", "gpt-4.1-mini", self.key.get().strip()),
+            )
         previous = self.session
         self.session = Session(
             transcriber,
