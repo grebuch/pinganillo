@@ -33,6 +33,8 @@ class Settings:
     analysis_interval_s: float = 4.0
     context_budget_chars: int = 2_500
     ai_timeout_s: float = 45.0
+    notice_acknowledged: bool = False
+    sidebar_visible: bool = True
 
     @classmethod
     def path(cls, directory: Path | None = None) -> Path:

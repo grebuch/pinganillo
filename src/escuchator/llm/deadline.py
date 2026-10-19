@@ -19,7 +19,7 @@ T = TypeVar("T")
 class DeadlineCall:
     """At most one in-flight worker; late results are never reused."""
 
-    def __init__(self, timeout: float = 45, progress: Callable[[str], None] | None = None) -> None:
+    def __init__(self, timeout: float = 45, progress: Callable[[int, float], None] | None = None) -> None:
         self.timeout, self.progress = timeout, progress
         self.worker: threading.Thread | None = None
         self.lock = threading.Lock()
@@ -56,9 +56,7 @@ class DeadlineCall:
                 ok, value = result.get(timeout=min(1, remaining))
             except queue.Empty:
                 if self.progress:
-                    self.progress(
-                        f"Waiting for AI · {int(time.monotonic() - start)} s (limit {self.timeout:.0f} s)"
-                    )
+                    self.progress(int(time.monotonic() - start), self.timeout)
                 continue
             if not ok:
                 assert isinstance(value, BaseException)

@@ -7,6 +7,14 @@ previous ones: if the AI breaks, capture and transcription keep going.
 
 Shutdown is a sentinel (``None``) that flows down the queues, so pending audio
 is still transcribed after the user presses stop.
+
+User-facing messages are emitted as ``(message_key, params)`` so the UI can
+translate them; see ``escuchator.i18n``.
+
+Latency is measured, not guessed: each chunk carries the monotonic time at
+which its audio ended, and the pipeline records how long it took until its
+text (``stt``) and the resulting suggestions (``e2e``) were ready, plus the
+pure model time (``ai``).
 """
 
 from __future__ import annotations
@@ -16,6 +24,7 @@ import json
 import queue
 import threading
 import time
+from collections import deque
 from typing import Any
 
 import numpy as np
@@ -32,6 +41,21 @@ SILENT_CHUNK = 1e-5
 RECENT_FRAGMENTS = 6
 MIN_FRAGMENT_CHARS = 12
 """Fragments shorter than this ("Yes.", "OK") wait for more speech instead of costing a request."""
+
+Message = tuple[str, dict[str, Any]]
+
+
+def msg(key: str, **params: Any) -> Message:
+    return key, params
+
+
+def percentile(values: list[float], q: float) -> float | None:
+    """Nearest-rank percentile; ``None`` for no data."""
+    if not values:
+        return None
+    ordered = sorted(values)
+    index = min(len(ordered) - 1, max(0, round(q / 100 * len(ordered) + 0.5) - 1))
+    return ordered[index]
 
 
 class Session:
@@ -54,8 +78,8 @@ class Session:
         self.interval = interval
         self.stop = threading.Event()
         self.cancel = threading.Event()
-        self.audio: queue.Queue[np.ndarray | None] = queue.Queue(maxsize=20)
-        self.analysis: queue.Queue[tuple[str, list[dict]] | None] = queue.Queue()
+        self.audio: queue.Queue[tuple[np.ndarray, float] | np.ndarray | None] = queue.Queue(maxsize=20)
+        self.analysis: queue.Queue[tuple[str, list[dict], float] | None] = queue.Queue()
         self.analysis_disabled = False
         self.ai_generation = 0
         self.last_ai_diagnostic: dict[str, Any] = {}
@@ -64,6 +88,7 @@ class Session:
         self.concepts: dict[str, dict] = {}
         self.questions: dict[str, dict] = {}
         self._carry = ""
+        self._carry_since: float | None = None
         self.threads: list[threading.Thread] = []
         self.last_audio = time.monotonic()
         self.metrics = {
@@ -73,12 +98,14 @@ class Session:
             "dropped_chunks": 0,
             "payload_chars": 0,
         }
+        self.latency: dict[str, deque[float]] = {k: deque(maxlen=500) for k in ("stt", "ai", "e2e")}
         self.errors: list[str] = []
 
     # -- plumbing ----------------------------------------------------------
     def emit(self, kind: str, value: Any) -> None:
         if kind == "error":
-            self.errors.append(str(value))
+            key, params = value
+            self.errors.append(f"{key}: {params.get('detail', '')}".rstrip(": "))
         self.events.put((self, kind, value))
 
     @property
@@ -101,6 +128,14 @@ class Session:
         self.summary = previous.summary
         self.concepts = previous.concepts.copy()
         self.questions = previous.questions.copy()
+        for key, values in previous.latency.items():
+            self.latency[key].extend(values)
+
+    def latency_summary(self) -> dict[str, dict[str, float | int | None]]:
+        return {
+            key: {"n": len(v), "p50": percentile(list(v), 50), "p95": percentile(list(v), 95)}
+            for key, v in self.latency.items()
+        }
 
     # -- stage 1: capture --------------------------------------------------
     def capture(self) -> None:
@@ -121,7 +156,7 @@ class Session:
                     self.enqueue(tail)
         except Exception as exc:
             self.stop.set()
-            self.emit("error", f"Audio capture: {exc}")
+            self.emit("error", msg("error.capture", detail=str(exc)))
         finally:
             self.audio.put(None)
 
@@ -130,55 +165,57 @@ class Session:
         if rms(to_mono(chunk)) < SILENT_CHUNK:
             return
         try:
-            self.audio.put_nowait(chunk)
+            self.audio.put_nowait((chunk, time.monotonic()))
         except queue.Full:
             self.metrics["dropped_chunks"] += 1
-            self.emit(
-                "error", "Transcription is falling behind: an audio chunk was skipped. Try a smaller model."
-            )
+            self.emit("error", msg("error.falling_behind"))
 
     # -- stage 2: transcription -------------------------------------------
     def transcribe(self) -> None:
         if hasattr(self.transcriber, "prepare"):
-            self.emit("stage", "Loading local Whisper: the first download can take a few minutes…")
+            self.emit("stage", msg("stage.loading_whisper"))
             try:
                 self.transcriber.prepare()
-                self.emit("stage", "Whisper ready · waiting for speech")
+                self.emit("stage", msg("stage.whisper_ready"))
             except Exception as exc:
-                self.emit("error", f"Could not load Whisper: {exc}")
+                self.emit("error", msg("error.whisper_load", detail=str(exc)))
                 self.stop.set()
                 while self.audio.get() is not None:
                     pass  # drain so capture can shut down cleanly
                 self.analysis.put(None)
                 return
         while True:
-            samples = self.audio.get()
-            if samples is None:
+            item = self.audio.get()
+            if item is None:
                 self.analysis.put(None)
                 return
+            samples, captured_at = item if isinstance(item, tuple) else (item, time.monotonic())
             if self.cancel.is_set():
                 continue
             try:
-                self.emit("stage", "Transcribing…")
+                self.emit("stage", msg("stage.transcribing"))
                 started = time.monotonic()
                 text = self.transcriber.transcribe(samples, "")
                 if time.monotonic() - started > len(samples) / CAPTURE_RATE:
-                    self.emit("stage", "Transcription is slower than real time: try a smaller model")
+                    self.emit("stage", msg("stage.slower_than_realtime"))
                 if not text:
-                    self.emit("stage", "Audio received, but no words detected in this chunk")
+                    self.emit("stage", msg("stage.no_words"))
                     continue
+                self.latency["stt"].append(time.monotonic() - captured_at)
                 entry = {"hora": dt.datetime.now().strftime("%H:%M:%S"), "texto": text}
                 self.metrics["transcript_blocks"] += 1
                 self.transcript.append(entry)
                 self.emit("transcript", entry)
-                self.analysis.put((text, self.transcript[-RECENT_FRAGMENTS:].copy()))
+                self.emit("latency", self.latency_snapshot())
+                self.analysis.put((text, self.transcript[-RECENT_FRAGMENTS:].copy(), captured_at))
             except Exception as exc:
-                self.emit("error", f"Transcription: {exc}")
+                self.emit("error", msg("error.transcription", detail=str(exc)))
 
     # -- stage 3: analysis -------------------------------------------------
-    def _collect(self, first: tuple[str, list[dict]], until: float) -> tuple[str, list[dict], bool]:
+    def _collect(self, first: tuple, until: float) -> tuple[str, list[dict], float, bool]:
         """Batch fragments that arrive before ``until`` so one request covers them all."""
         pending, recent = [first[0]], first[1]
+        oldest = first[2] if len(first) > 2 else time.monotonic()
         ended = False
         while time.monotonic() < until:
             try:
@@ -192,7 +229,7 @@ class Session:
                 break
             pending.append(more[0])
             recent = more[1]
-        return "\n".join(pending), recent, ended
+        return "\n".join(pending), recent, oldest, ended
 
     def build_payload(self, text: str, recent: list[dict]) -> str:
         """Everything the model needs for one request, kept deliberately small.
@@ -222,36 +259,45 @@ class Session:
                 break
             if self.cancel.is_set() or self.analysis_disabled or isinstance(self.analyzer, NoAnalyzer):
                 continue
-            text, recent, ended = self._collect(item, max(next_call, time.monotonic() + 2))
-            text = f"{self._carry}\n{text}".strip() if self._carry else text
+            text, recent, oldest, ended = self._collect(item, max(next_call, time.monotonic() + 2))
+            if self._carry:
+                text = f"{self._carry}\n{text}".strip()
+                oldest = min(oldest, self._carry_since or oldest)
             if len(text.strip()) < MIN_FRAGMENT_CHARS and not ended:
-                self._carry = text
+                self._carry, self._carry_since = text, oldest
                 continue
-            self._carry = ""
+            self._carry, self._carry_since = "", None
             if not self.cancel.is_set() and not self.analysis_disabled:
-                self._analyze_once(text, recent)
+                self._analyze_once(text, recent, oldest)
                 next_call = time.monotonic() + self.interval
             if ended:
                 break
         self.emit("done", "")
 
-    def _analyze_once(self, text: str, recent: list[dict]) -> None:
+    def _analyze_once(self, text: str, recent: list[dict], spoken_at: float | None = None) -> None:
         analyzer, generation = self.analyzer, self.ai_generation
         if isinstance(analyzer, NoAnalyzer):
             return
         try:
             if hasattr(analyzer, "guard"):
-                analyzer.guard.progress = lambda message: self.emit("ai_stage", message)
+                analyzer.guard.progress = lambda elapsed, limit: self.emit(
+                    "ai_stage", msg("ai.waiting", seconds=elapsed, limit=int(limit))
+                )
             self.metrics["analysis_calls"] += 1
-            self.emit("ai_stage", "Asking the AI…")
+            self.emit("ai_stage", msg("ai.asking"))
             payload = self.build_payload(text, recent)
             self.metrics["payload_chars"] += len(payload)
+            started = time.monotonic()
             output = analyzer.analyze(instructions(self.profile), payload)
+            self.latency["ai"].append(time.monotonic() - started)
             self.last_ai_diagnostic = dict(getattr(analyzer, "diagnostic", {}))
             if generation != self.ai_generation:
                 return  # AI was paused or swapped meanwhile: discard the late answer
             data = parse_analysis(output)
-            self.emit("ai_stage", "AI answered · waiting for new speech")
+            if spoken_at is not None:
+                self.latency["e2e"].append(time.monotonic() - spoken_at)
+            self.emit("ai_stage", msg("ai.answered"))
+            self.emit("latency", self.latency_snapshot())
             self.summary = data["resumen"]
             for concept in data["conceptos"]:
                 key = concept["termino"].strip().casefold()
@@ -268,5 +314,8 @@ class Session:
                 getattr(analyzer, "diagnostic", {"state": "error", "type": type(exc).__name__})
             )
             self.analysis_disabled = True
-            self.emit("ai_stage", "AI paused after an error; transcription keeps running")
-            self.emit("error", f"Analysis paused: {exc} Local transcription continues.")
+            self.emit("ai_stage", msg("ai.paused_error"))
+            self.emit("error", msg("error.analysis", detail=str(exc)))
+
+    def latency_snapshot(self) -> dict[str, float | None]:
+        return {key: (values[-1] if values else None) for key, values in self.latency.items()}

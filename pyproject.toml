@@ -30,6 +30,7 @@ dependencies = [
     "requests>=2.32,<3",
     "PyJWT[crypto]>=2.10,<3",
     "SoundCard>=0.4.3,<0.5",
+    "PySide6-Essentials>=6.7,<7",
     "PyAudioWPatch>=0.2.12.6,<0.3; sys_platform == 'win32'",
 ]
 
@@ -37,6 +38,10 @@ dependencies = [
 dev = ["pytest>=8", "ruff>=0.6"]
 
 [project.scripts]
+escuchator-cli = "escuchator.__main__:main"
+escuchator-bench = "escuchator.bench:main"
+
+[project.gui-scripts]
 escuchator = "escuchator.__main__:main"
 
 [project.urls]
@@ -60,5 +65,8 @@ src = ["src", "tests"]
 select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
 ignore = ["RUF001", "RUF002", "RUF003"]  # Spanish text legitimately uses typographic characters
 
+
 [tool.ruff.lint.per-file-ignores]
-"src/escuchator/ui/tk_app.py" = ["E501", "SIM102", "UP031"]  # legacy UI, replaced by the Qt UI
+# Translation tables and the demo script are prose; wrapping them would hurt readability.
+"src/escuchator/i18n.py" = ["E501"]
+"src/escuchator/demo.py" = ["E501"]
