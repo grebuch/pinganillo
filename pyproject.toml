@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
-authors = [{ name = "grebuch" }]
+authors = [{ name = "Sergi Querol" }]
 keywords = ["whisper", "transcription", "meetings", "llm", "ollama", "local-first", "wasapi"]
 classifiers = [
     "Development Status :: 4 - Beta",
