@@ -30,6 +30,7 @@ First public release candidate.
 
 ### Changed
 - Renamed from Escuchator to Pinganillo, with its own logo.
+- Releases are built and attached automatically when a maintainer publishes them on GitHub.
 - Audio is always transcribed locally; the paid mode no longer uploads audio.
 - Code restructured into an installable package.
 

@@ -13,9 +13,9 @@ Fixes bump PATCH, new features bump MINOR, breaking changes bump MAJOR.
 ## Cutting a release
 
 1. **Freeze**: move the `Unreleased` notes under a new heading `## [X.Y.Z-rc.N] - date` and set the version in `pyproject.toml` and `src/pinganillo/__init__.py` to the PEP 440 form (`X.Y.ZrcN`).
-2. **Release candidate**: merge, then tag `vX.Y.Z-rc.N` on `main` and push the tag. The *Release* workflow checks that the tag matches the package version, builds the Windows app, smoke-tests it, and publishes a **pre-release** with a SHA-256 checksum.
+2. **Release candidate**: merge, then on GitHub go to *Releases → Draft a new release*, create the tag `vX.Y.Z-rc.N` on `main`, tick *Set as a pre-release*, generate the notes and publish. The *Release* workflow checks that the tag matches the package version, builds the Windows app from that tag, smoke-tests it and attaches the zip with a SHA-256 checksum.
 3. **Manual test**: open a *Release checklist* issue and test the candidate on a real Windows machine. Any failure → fix through a pull request → `rc.N+1`.
-4. **Final**: when a candidate passes the whole checklist, set the version to `X.Y.Z`, rename the changelog heading, tag `vX.Y.Z`. The final release is built from the same code that was tested.
+4. **Final**: when a candidate passes the whole checklist, set the version to `X.Y.Z` and rename the changelog heading in a pull request (no other changes), then publish the release `vX.Y.Z` the same way, without the pre-release tick.
 5. **After**: close the milestone, open the next one, and announce.
 
 ## Security

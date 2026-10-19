@@ -1,11 +1,12 @@
 name: Release
 
-# Push a tag like v1.0.0 (or v1.0.0-rc.1 for a release candidate) to build the
-# Windows app and attach it to a GitHub release. Tags with a "-" are published
-# as pre-releases.
+# A maintainer publishes a GitHub release (tag vX.Y.Z, or vX.Y.Z-rc.N marked as
+# pre-release). This workflow then builds the Windows app from that tag, smoke-tests
+# it and attaches the zip and its SHA-256 checksum to the release. Publishing stays
+# a human decision; building and attaching is automatic.
 on:
-  push:
-    tags: ["v*"]
+  release:
+    types: [published]
 
 permissions:
   contents: read
@@ -28,7 +29,7 @@ jobs:
       - name: Tag must match the package version
         shell: python
         env:
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ github.event.release.tag_name }}
         run: |
           import os
           from packaging.version import Version
@@ -49,7 +50,7 @@ jobs:
       - name: Zip and checksum
         shell: pwsh
         env:
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ github.event.release.tag_name }}
         run: |
           $zip = "Pinganillo-$env:TAG-windows-x64.zip"
           Compress-Archive -Path dist\Pinganillo -DestinationPath $zip
@@ -57,7 +58,6 @@ jobs:
       - uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           files: |
-            Pinganillo-${{ github.ref_name }}-windows-x64.zip
-            Pinganillo-${{ github.ref_name }}-windows-x64.zip.sha256
-          prerelease: ${{ contains(github.ref_name, '-') }}
-          generate_release_notes: true
+            Pinganillo-${{ github.event.release.tag_name }}-windows-x64.zip
+            Pinganillo-${{ github.event.release.tag_name }}-windows-x64.zip.sha256
+          tag_name: ${{ github.event.release.tag_name }}
