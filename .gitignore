@@ -17,3 +17,4 @@ session-*.json
 *.wav
 !tests/data/*.wav
 .install-stamp
+pinganillo-*.log

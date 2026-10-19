@@ -41,7 +41,7 @@ pinganillo --demo
 
 **Use it for real on Windows 10/11:**
 
-1. Install [Python 3.12](https://www.python.org/downloads/) (64-bit), then clone or download this repository.
+1. Install [Python 3.12](https://www.python.org/downloads/) (64-bit; 3.11 and 3.13 also work, from python.org, pyenv-win or PATH), then clone or download this repository.
 2. Double-click `run-windows.bat`. The first run creates a private environment and installs dependencies; later runs start straight away.
 3. Pick the output you hear your call on (for example *PC audio · Headphones*), press **Start listening** and play some speech.
 4. Optional: install [Ollama](https://ollama.com), run `ollama pull qwen2.5:7b`, choose *Ollama · local* as the provider and switch **AI analysis** on.
