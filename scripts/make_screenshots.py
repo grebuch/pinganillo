@@ -44,6 +44,10 @@ def shoot(app: QApplication, language: str, gif: bool = False) -> Path:
     window = MainWindow(settings, devices_fn=lambda engine: ([Speakers()], 0), persist=False)
     window.resize(1440, 860)
     window.show()
+    while not window.devices:  # devices are listed on a worker thread
+        app.processEvents()
+        window.poll()
+        time.sleep(0.02)
     window.ai_button.setChecked(True)
     window._update_ai_button()
     session = Session(

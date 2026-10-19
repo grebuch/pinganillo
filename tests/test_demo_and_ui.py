@@ -39,6 +39,17 @@ def test_demo_meeting_flows_through_the_real_pipeline():
     assert summary["stt"]["n"] >= 5 and summary["e2e"]["n"] >= 1
 
 
+def _wait(app, window, condition, seconds=20):
+    import time
+
+    deadline = time.monotonic() + seconds
+    while not condition() and time.monotonic() < deadline:
+        app.processEvents()
+        window.poll()
+        time.sleep(0.02)
+    return condition()
+
+
 @pytest.fixture
 def qt_app():
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -58,7 +69,7 @@ def test_main_window_builds_and_renders_session_events(qt_app, tmp_path):
         name, isloopback = "Speakers", True
 
     window = MainWindow(Settings(), devices_fn=lambda engine: ([Dev()], 0), persist=False)
-    assert window.source_combo.count() == 1
+    assert _wait(qt_app, window, lambda: window.source_combo.count() == 1)  # listed off the GUI thread
     assert not window.ai_button.isEnabled()  # provider "none": AI cannot be switched on
 
     window._select(window.provider_combo, "ollama")
@@ -77,17 +88,6 @@ def test_main_window_builds_and_renders_session_events(qt_app, tmp_path):
     transcript = window.transcript_view.toPlainText()
     assert "hello" in transcript and "HTTP 429" in transcript
     window.close()
-
-
-def _wait(app, window, condition, seconds=20):
-    import time
-
-    deadline = time.monotonic() + seconds
-    while not condition() and time.monotonic() < deadline:
-        app.processEvents()
-        window.poll()
-        time.sleep(0.02)
-    return condition()
 
 
 def test_start_button_runs_a_real_session(qt_app, monkeypatch, speech_block):
@@ -111,6 +111,7 @@ def test_start_button_runs_a_real_session(qt_app, monkeypatch, speech_block):
     window = MainWindow(
         Settings(notice_acknowledged=True), devices_fn=lambda engine: ([device], 0), persist=False
     )
+    assert _wait(qt_app, window, lambda: bool(window.devices))
     window.start_button.click()
     assert window.session is not None and window.session.running
     device.ref["session"] = window.session  # the fake recorder stops the session after its blocks
@@ -118,4 +119,26 @@ def test_start_button_runs_a_real_session(qt_app, monkeypatch, speech_block):
     window.poll()
     assert "Hola desde Whisper" in window.transcript_view.toPlainText()
     assert window.start_button.text() == "Start listening"
+    window.close()
+
+
+def test_a_stuck_audio_driver_does_not_block_the_window(qt_app):
+    """Device enumeration can hang on some Windows drivers; the window must still come up."""
+    import threading
+    import time
+
+    from pinganillo.config import Settings
+    from pinganillo.ui.main_window import MainWindow
+
+    release = threading.Event()
+
+    def stuck(engine):
+        release.wait(5)
+        return [], 0
+
+    started = time.monotonic()
+    window = MainWindow(Settings(), devices_fn=stuck, persist=False)
+    assert time.monotonic() - started < 2
+    assert window.source_combo.count() == 0
+    release.set()
     window.close()

@@ -10,6 +10,7 @@ from __future__ import annotations
 import contextlib
 import html
 import json
+import logging
 import queue
 import threading
 from collections.abc import Callable
@@ -63,6 +64,7 @@ SAMPLE_PAYLOAD = json.dumps(
     }
 )
 MAX_TRANSCRIPT_LINES = 400
+log = logging.getLogger("pinganillo.ui")
 
 
 def _fmt_seconds(value: float | None) -> str:
@@ -90,6 +92,7 @@ class MainWindow(QMainWindow):
         self.concepts: list[dict] = []
         self.answers: list[dict] = []
         self.chatgpt_models: list[dict] = []
+        self._device_request = 0
 
         self.setWindowTitle("Pinganillo")
         self.resize(1320, 840)
@@ -308,23 +311,48 @@ class MainWindow(QMainWindow):
 
     # ---------------------------------------------------------------- devices
     def refresh_devices(self) -> None:
+        """List capture devices on a worker thread.
+
+        Opening PortAudio/WASAPI enumerates every audio driver, and some
+        drivers (Bluetooth headsets are a classic) can block for a long
+        time. The window must never wait for that.
+        """
         if self.session and self.session.running:
             return
         engine = self.engine_combo.currentData()
+        self._device_request += 1
+        token = self._device_request
+        self.devices = []
         self.source_combo.clear()
-        try:
-            self.devices, default = self.devices_fn(engine)
-        except Exception as exc:
-            self.devices = []
-            self.stage_label.setText(tr("status.devices_error", detail=str(exc)))
-            return
-        for d in self.devices:
+        self.source_combo.setPlaceholderText(tr("status.searching_devices"))
+        self.stage_label.setText(tr("status.searching_devices"))
+
+        def work() -> tuple[int, list[Any], int]:
+            log.info("listing %s devices", engine)
+            devices, default = self.devices_fn(engine)
+            log.info("found %d devices", len(devices))
+            return token, devices, default
+
+        def warn_if_slow() -> None:
+            if token == self._device_request and not self.devices:
+                self.stage_label.setText(tr("status.devices_slow"))
+
+        self._background(work, "devices", "devices_error")
+        QTimer.singleShot(10_000, warn_if_slow)
+
+    def _on_devices(self, token: int, devices: list[Any], default: int) -> None:
+        if token != self._device_request:
+            return  # an older request finished after a newer one started
+        self.devices = devices
+        self.source_combo.clear()
+        for d in devices:
             self.source_combo.addItem(tr("source.pc" if d.isloopback else "source.mic", name=d.name))
-        if not self.devices:
+        if not devices:
             self.stage_label.setText(tr("status.no_devices"))
             return
-        saved = next((i for i, d in enumerate(self.devices) if d.name == self.settings.device_name), None)
+        saved = next((i for i, d in enumerate(devices) if d.name == self.settings.device_name), None)
         self.source_combo.setCurrentIndex(saved if saved is not None else default)
+        self.stage_label.setText(tr("status.ready"))
 
     # --------------------------------------------------------------------- AI
     @property
@@ -624,7 +652,12 @@ class MainWindow(QMainWindow):
                 self._on_session(kind, value)
 
     def _on_background(self, kind: str, value: Any) -> None:
-        if kind == "login_ok":
+        if kind == "devices":
+            self._on_devices(*value)
+        elif kind == "devices_error":
+            log.warning("device listing failed: %s", value)
+            self.stage_label.setText(tr("status.devices_error", detail=value))
+        elif kind == "login_ok":
             email, self.chatgpt_models = value
             self.connect_button.setEnabled(True)
             if self.provider() == "chatgpt":
