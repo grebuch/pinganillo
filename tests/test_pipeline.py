@@ -110,3 +110,33 @@ def test_fragments_are_batched_and_results_deduplicated():
     assert kinds[-1] == "done"
     assert len(calls) == 1
     assert "\n" in calls[0]["fragmento_nuevo"]
+
+
+def test_payload_sends_relevant_context_not_the_whole_document():
+    document = "\n\n".join(
+        ["Our RTO for the ERP is four hours."] + [f"Unrelated filler paragraph {i}." * 20 for i in range(60)]
+    )
+    session = Session(None, NoAnalyzer(), None, knowledge=document)
+    payload = json.loads(session.build_payload("What is our RTO for the ERP?", []))
+    assert "four hours" in payload["documentacion"]
+    assert len(payload["documentacion"]) <= 2_500
+    assert len(document) > 30_000
+
+
+def test_very_short_fragments_wait_for_more_speech():
+    calls = []
+
+    def analyze(instructions, payload):
+        calls.append(json.loads(payload)["fragmento_nuevo"])
+        return ANSWER
+
+    session = Session(None, SimpleNamespace(analyze=analyze), None, interval=0)
+    session.analysis.put(("OK.", []))
+    thread = threading.Thread(target=session.analyze)
+    thread.start()
+    thread.join(3)  # first fragment alone is too short: no request yet
+    assert calls == []
+    session.analysis.put(("Can we reduce the backup window?", []))
+    session.analysis.put(None)
+    thread.join(5)
+    assert calls == ["OK.\nCan we reduce the backup window?"]

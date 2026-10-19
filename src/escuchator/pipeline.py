@@ -23,11 +23,15 @@ import numpy as np
 from .audio.dsp import CAPTURE_RATE, rms, to_mono
 from .audio.segmenter import PauseSegmenter
 from .llm.analyzers import Analyzer, NoAnalyzer
+from .llm.knowledge import KnowledgeBase
 from .llm.parsing import parse_analysis
 from .llm.prompt import instructions
 
 BLOCK_FRAMES = CAPTURE_RATE // 2  # 0.5 s capture blocks
 SILENT_CHUNK = 1e-5
+RECENT_FRAGMENTS = 6
+MIN_FRAGMENT_CHARS = 12
+"""Fragments shorter than this ("Yes.", "OK") wait for more speech instead of costing a request."""
 
 
 class Session:
@@ -37,12 +41,15 @@ class Session:
         analyzer: Analyzer,
         device: Any,
         profile: str = "general",
-        knowledge: str = "",
+        knowledge: KnowledgeBase | str = "",
         events: queue.Queue | None = None,
-        interval: float = 3.0,
+        interval: float = 4.0,
+        context_budget_chars: int = 2_500,
     ) -> None:
         self.transcriber, self.analyzer, self.device = transcriber, analyzer, device
-        self.profile, self.knowledge = profile, knowledge
+        self.profile = profile
+        self.knowledge = knowledge if isinstance(knowledge, KnowledgeBase) else KnowledgeBase(knowledge)
+        self.context_budget_chars = context_budget_chars
         self.events: queue.Queue = events if events is not None else queue.Queue()
         self.interval = interval
         self.stop = threading.Event()
@@ -55,10 +62,17 @@ class Session:
         self.transcript: list[dict[str, str]] = []
         self.summary = ""
         self.concepts: dict[str, dict] = {}
-        self.questions: set[str] = set()
+        self.questions: dict[str, dict] = {}
+        self._carry = ""
         self.threads: list[threading.Thread] = []
         self.last_audio = time.monotonic()
-        self.metrics = {"audio_blocks": 0, "transcript_blocks": 0, "analysis_calls": 0, "dropped_chunks": 0}
+        self.metrics = {
+            "audio_blocks": 0,
+            "transcript_blocks": 0,
+            "analysis_calls": 0,
+            "dropped_chunks": 0,
+            "payload_chars": 0,
+        }
         self.errors: list[str] = []
 
     # -- plumbing ----------------------------------------------------------
@@ -157,7 +171,7 @@ class Session:
                 self.metrics["transcript_blocks"] += 1
                 self.transcript.append(entry)
                 self.emit("transcript", entry)
-                self.analysis.put((text, self.transcript[-8:].copy()))
+                self.analysis.put((text, self.transcript[-RECENT_FRAGMENTS:].copy()))
             except Exception as exc:
                 self.emit("error", f"Transcription: {exc}")
 
@@ -181,14 +195,21 @@ class Session:
         return "\n".join(pending), recent, ended
 
     def build_payload(self, text: str, recent: list[dict]) -> str:
+        """Everything the model needs for one request, kept deliberately small.
+
+        Plan-backed requests are stateless (``store=False``), so context must be
+        resent every time. The document is reduced to the passages that match
+        what is being said right now.
+        """
+        query = text + "\n" + " ".join(entry["texto"] for entry in recent)
         return json.dumps(
             {
                 "resumen_anterior": self.summary,
                 "contexto_reciente": recent,
                 "fragmento_nuevo": text,
-                "conceptos_explicados": list(self.concepts)[-100:],
-                "preguntas_respondidas": list(self.questions)[-50:],
-                "documentacion": self.knowledge,
+                "conceptos_explicados": list(self.concepts)[-40:],
+                "preguntas_respondidas": list(self.questions)[-20:],
+                "documentacion": self.knowledge.relevant(query, self.context_budget_chars),
             },
             ensure_ascii=False,
         )
@@ -202,6 +223,11 @@ class Session:
             if self.cancel.is_set() or self.analysis_disabled or isinstance(self.analyzer, NoAnalyzer):
                 continue
             text, recent, ended = self._collect(item, max(next_call, time.monotonic() + 2))
+            text = f"{self._carry}\n{text}".strip() if self._carry else text
+            if len(text.strip()) < MIN_FRAGMENT_CHARS and not ended:
+                self._carry = text
+                continue
+            self._carry = ""
             if not self.cancel.is_set() and not self.analysis_disabled:
                 self._analyze_once(text, recent)
                 next_call = time.monotonic() + self.interval
@@ -218,7 +244,9 @@ class Session:
                 analyzer.guard.progress = lambda message: self.emit("ai_stage", message)
             self.metrics["analysis_calls"] += 1
             self.emit("ai_stage", "Asking the AI…")
-            output = analyzer.analyze(instructions(self.profile), self.build_payload(text, recent))
+            payload = self.build_payload(text, recent)
+            self.metrics["payload_chars"] += len(payload)
+            output = analyzer.analyze(instructions(self.profile), payload)
             self.last_ai_diagnostic = dict(getattr(analyzer, "diagnostic", {}))
             if generation != self.ai_generation:
                 return  # AI was paused or swapped meanwhile: discard the late answer
@@ -233,7 +261,7 @@ class Session:
             for question in data["preguntas"]:
                 key = question["pregunta"].strip().casefold()
                 if key and key not in self.questions:
-                    self.questions.add(key)
+                    self.questions[key] = question
                     self.emit("question", question)
         except Exception as exc:
             self.last_ai_diagnostic = dict(
