@@ -288,7 +288,8 @@ class ChatGPTAuth:
                         endpoint,
                         data={
                             "token": self.tokens["refresh_token"],
-                            "token_type_hint": "refresh_token",
+                            # "refresh_token" below is the token *type* name (RFC 7009), not a secret.
+                            "token_type_hint": "refresh_token",  # nosec B105
                             "client_id": self.client_id,
                         },
                         timeout=20,

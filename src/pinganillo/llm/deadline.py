@@ -59,6 +59,7 @@ class DeadlineCall:
                     self.progress(int(time.monotonic() - start), self.timeout)
                 continue
             if not ok:
-                assert isinstance(value, BaseException)
-                raise value
+                if isinstance(value, BaseException):
+                    raise value
+                raise RuntimeError(f"AI worker failed with a non-exception value: {value!r}")
             return value  # type: ignore[return-value]

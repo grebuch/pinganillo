@@ -1,8 +1,8 @@
 # Roadmap
 
-## 0.7 · Closer to real time
+## 1.1 · Closer to real time
 
-Today text appears about 5–15 s after something is said, and a suggestion 15–40 s after (estimates from the pipeline design; the live telemetry measures the real numbers on each machine). The goal for 0.7 is **text in 1–3 s and the short reply starting to appear in 3–6 s** with a fast model.
+Today text appears about 5–15 s after something is said, and a suggestion 15–40 s after (estimates from the pipeline design; the live telemetry measures the real numbers on each machine). The goal for 1.1 is **text in 1–3 s and the short reply starting to appear in 3–6 s** with a fast model.
 
 | # | Change | Expected effect |
 |---|---|---|

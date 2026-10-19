@@ -1,37 +1,63 @@
 name: Release
 
-# Push a tag like v0.6.0 to build the Windows app and attach it to a GitHub release.
+# Push a tag like v1.0.0 (or v1.0.0-rc.1 for a release candidate) to build the
+# Windows app and attach it to a GitHub release. Tags with a "-" are published
+# as pre-releases.
 on:
   push:
     tags: ["v*"]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   windows:
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
           cache: pip
       - run: python -m pip install --upgrade pip
-      - run: pip install -e . "pyinstaller>=6.10"
+      - run: pip install -e . "pyinstaller>=6.10" packaging
+      - name: Tag must match the package version
+        shell: python
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          import os
+          from packaging.version import Version
+          import pinganillo
+          tag, package = Version(os.environ["TAG"].lstrip("v")), Version(pinganillo.__version__)
+          assert tag == package, f"tag {tag} != package version {package}"
+          print(f"version {package} OK")
       - name: Build
         run: >
           pyinstaller packaging/launcher.py --name Pinganillo --windowed --noconfirm
-          --icon packaging/pinganillo.ico --collect-data pinganillo --collect-data faster_whisper --collect-binaries ctranslate2 --collect-all onnxruntime
-          --copy-metadata faster-whisper
+          --icon packaging/pinganillo.ico --collect-data pinganillo --collect-data faster_whisper
+          --collect-binaries ctranslate2 --collect-all onnxruntime --copy-metadata faster-whisper
       - name: Smoke test (the frozen app boots and exits cleanly)
         shell: pwsh
         run: |
           $p = Start-Process dist\Pinganillo\Pinganillo.exe -ArgumentList '--version' -Wait -PassThru
           if ($p.ExitCode -ne 0) { exit 1 }
-      - name: Zip
-        run: Compress-Archive -Path dist\Pinganillo -DestinationPath Pinganillo-${{ github.ref_name }}-windows-x64.zip
-      - uses: softprops/action-gh-release@v2
+      - name: Zip and checksum
+        shell: pwsh
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          $zip = "Pinganillo-$env:TAG-windows-x64.zip"
+          Compress-Archive -Path dist\Pinganillo -DestinationPath $zip
+          (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower() + "  " + $zip | Out-File -Encoding ascii "$zip.sha256"
+      - uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
-          files: Pinganillo-${{ github.ref_name }}-windows-x64.zip
+          files: |
+            Pinganillo-${{ github.ref_name }}-windows-x64.zip
+            Pinganillo-${{ github.ref_name }}-windows-x64.zip.sha256
+          prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
