@@ -2,9 +2,9 @@
 
 All notable changes to this project. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org/).
 
-## [1.0.0-rc.1] - 2026-10-19
+## [1.0.0] - 2026-10-19
 
-First public release candidate.
+First stable release. Identical to 1.0.0-rc.1, which passed the manual release checklist on a real Windows machine.
 
 ### Added
 - Qt interface with concepts, suggested replies and live transcript; English and Spanish.
