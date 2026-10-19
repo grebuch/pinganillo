@@ -96,6 +96,9 @@ class MainWindow(QMainWindow):
         self._restore()
         self.refresh_devices()
         self.on_provider_changed()
+        if demo:  # the demo is about the suggestions, so start with the AI on
+            self.ai_button.setChecked(True)
+            self._update_ai_button()
         self._render_all()
         self._set_idle()
 
