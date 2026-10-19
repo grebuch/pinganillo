@@ -1,10 +1,10 @@
 # Responsible use
 
-Escuchator transcribes what your computer plays, which usually includes other people's voices. Using it well is your responsibility; the app tries to make the right thing easy.
+Pinganillo transcribes what your computer plays, which usually includes other people's voices. Using it well is your responsibility; the app tries to make the right thing easy.
 
 ## Before a meeting
 
-- **Tell the participants.** The *Copy meeting notice* button puts a short, honest message on your clipboard, for example: *"Heads-up: I'm using Escuchator, an open-source assistant that transcribes this call on my computer to help me follow it. Tell me if you'd rather I turn it off."* When a cloud provider is selected, the message says which one.
+- **Tell the participants.** The *Copy meeting notice* button puts a short, honest message on your clipboard, for example: *"Heads-up: I'm using Pinganillo, an open-source assistant that transcribes this call on my computer to help me follow it. Tell me if you'd rather I turn it off."* When a cloud provider is selected, the message says which one.
 - **Know your local rules.** Recording and transcription laws differ by country and state. Some require the consent of everyone in the conversation. Workplaces often have their own policies, and in the EU the GDPR applies when you process other people's personal data in a professional context. This page is not legal advice.
 - **Prefer a local provider** for confidential meetings. With *Transcription only*, Ollama or LM Studio, nothing leaves your computer.
 

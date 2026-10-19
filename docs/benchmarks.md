@@ -2,7 +2,7 @@
 
 ## Method
 
-`escuchator-bench` measures the speech-to-text part with the same code path as the live app:
+`pinganillo-bench` measures the speech-to-text part with the same code path as the live app:
 
 1. Load a 16-bit WAV and resample it to 48 kHz.
 2. Cut it into 0.5 s blocks and group them with the same `PauseSegmenter`.
@@ -16,8 +16,8 @@ It reports:
 - **WER** (word error rate) against a reference transcript, if you pass one. Punctuation and case are ignored; accents count.
 
 ```bash
-escuchator-bench meeting.wav --model small --language es --reference meeting.txt --json small.json
-escuchator-bench meeting.wav --model base  --language es --reference meeting.txt --json base.json
+pinganillo-bench meeting.wav --model small --language es --reference meeting.txt --json small.json
+pinganillo-bench meeting.wav --model base  --language es --reference meeting.txt --json base.json
 ```
 
 Convert other formats with `ffmpeg -i input.mp3 -ac 1 -ar 16000 -c:a pcm_s16le meeting.wav`.

@@ -4,8 +4,8 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from escuchator.llm.analyzers import ChatGPTPlanAnalyzer
-from escuchator.stt.whisper_local import LocalTranscriber
+from pinganillo.llm.analyzers import ChatGPTPlanAnalyzer
+from pinganillo.stt.whisper_local import LocalTranscriber
 
 
 class FakeStream:

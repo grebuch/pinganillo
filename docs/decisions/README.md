@@ -1,6 +1,6 @@
 # Design decisions
 
-Short records of the decisions that shape Escuchator: the context, what was chosen, and what it costs. New significant changes should add one (copy the format of any existing record).
+Short records of the decisions that shape Pinganillo: the context, what was chosen, and what it costs. New significant changes should add one (copy the format of any existing record).
 
 | # | Decision |
 |---|---|

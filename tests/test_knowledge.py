@@ -1,6 +1,6 @@
 import pytest
 
-from escuchator.llm.knowledge import KnowledgeBase, split_passages, tokenize
+from pinganillo.llm.knowledge import KnowledgeBase, split_passages, tokenize
 
 DOC = """Backups
 

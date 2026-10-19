@@ -1,6 +1,6 @@
 import numpy as np
 
-from escuchator.audio.segmenter import PauseSegmenter
+from pinganillo.audio.segmenter import PauseSegmenter
 
 LOUD, QUIET = 0.1, 0.0
 

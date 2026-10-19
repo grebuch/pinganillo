@@ -5,8 +5,8 @@ from types import SimpleNamespace
 import numpy as np
 
 from conftest import FakeDevice
-from escuchator.llm.analyzers import NoAnalyzer
-from escuchator.pipeline import Session
+from pinganillo.llm.analyzers import NoAnalyzer
+from pinganillo.pipeline import Session
 
 ANSWER = json.dumps(
     {

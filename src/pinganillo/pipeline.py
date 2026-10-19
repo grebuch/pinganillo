@@ -9,7 +9,7 @@ Shutdown is a sentinel (``None``) that flows down the queues, so pending audio
 is still transcribed after the user presses stop.
 
 User-facing messages are emitted as ``(message_key, params)`` so the UI can
-translate them; see ``escuchator.i18n``.
+translate them; see ``pinganillo.i18n``.
 
 Latency is measured, not guessed: each chunk carries the monotonic time at
 which its audio ended, and the pipeline records how long it took until its

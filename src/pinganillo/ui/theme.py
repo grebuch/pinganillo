@@ -8,6 +8,10 @@ the line you could say out loud. Everything else stays quiet.
 
 from __future__ import annotations
 
+from pathlib import Path
+
+ICON = Path(__file__).resolve().parent.parent / "assets" / "icon.svg"
+
 INK = "#1A2230"  # window background
 SLATE = "#222C3C"  # panels
 LINE = "#33405A"  # borders, separators

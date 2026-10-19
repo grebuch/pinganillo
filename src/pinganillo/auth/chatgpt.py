@@ -34,13 +34,13 @@ ISSUER = "https://auth.openai.com"
 RESOURCE = "https://api.openai.com/v1"
 PLAN_SCOPE = "chatgpt.tokens.use.direct"
 SCOPES = f"openid profile email offline_access resource.invoke {PLAN_SCOPE}"
-APP_NAME = "Escuchator"
+APP_NAME = "Pinganillo"
 LOGIN_TIMEOUT_S = 180
 
 
 def config_dir() -> Path:
     base = os.environ.get("LOCALAPPDATA") or os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config"
-    return Path(base) / "Escuchator"
+    return Path(base) / "Pinganillo"
 
 
 def validate_callback(
@@ -167,10 +167,10 @@ class ChatGPTAuth:
                     return
                 try:
                     result["value"] = validate_callback(params, state, expected_id)
-                    body = b"Authorisation received. You can go back to Escuchator."
+                    body = b"Authorisation received. You can go back to Pinganillo."
                 except ValueError as exc:
                     result["error"] = exc
-                    body = b"Authorisation was not completed. Go back to Escuchator."
+                    body = b"Authorisation was not completed. Go back to Pinganillo."
                 self.send_response(200)
                 self.send_header("Content-Type", "text/plain; charset=utf-8")
                 self.send_header("Content-Length", str(len(body)))

@@ -21,17 +21,17 @@ jobs:
       - run: pip install -e . "pyinstaller>=6.10"
       - name: Build
         run: >
-          pyinstaller packaging/launcher.py --name Escuchator --windowed --noconfirm
-          --collect-data faster_whisper --collect-binaries ctranslate2 --collect-all onnxruntime
+          pyinstaller packaging/launcher.py --name Pinganillo --windowed --noconfirm
+          --icon packaging/pinganillo.ico --collect-data pinganillo --collect-data faster_whisper --collect-binaries ctranslate2 --collect-all onnxruntime
           --copy-metadata faster-whisper
       - name: Smoke test (the frozen app boots and exits cleanly)
         shell: pwsh
         run: |
-          $p = Start-Process dist\Escuchator\Escuchator.exe -ArgumentList '--version' -Wait -PassThru
+          $p = Start-Process dist\Pinganillo\Pinganillo.exe -ArgumentList '--version' -Wait -PassThru
           if ($p.ExitCode -ne 0) { exit 1 }
       - name: Zip
-        run: Compress-Archive -Path dist\Escuchator -DestinationPath Escuchator-${{ github.ref_name }}-windows-x64.zip
+        run: Compress-Archive -Path dist\Pinganillo -DestinationPath Pinganillo-${{ github.ref_name }}-windows-x64.zip
       - uses: softprops/action-gh-release@v2
         with:
-          files: Escuchator-${{ github.ref_name }}-windows-x64.zip
+          files: Pinganillo-${{ github.ref_name }}-windows-x64.zip
           generate_release_notes: true

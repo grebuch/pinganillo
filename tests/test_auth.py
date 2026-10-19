@@ -1,6 +1,6 @@
 import pytest
 
-from escuchator.auth.chatgpt import ChatGPTAuth, validate_callback
+from pinganillo.auth.chatgpt import ChatGPTAuth, validate_callback
 
 
 def test_callback_accepts_matching_state_and_issued_client():

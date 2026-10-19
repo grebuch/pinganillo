@@ -3,7 +3,7 @@ requires = ["hatchling>=1.24"]
 build-backend = "hatchling.build"
 
 [project]
-name = "escuchator"
+name = "pinganillo"
 version = "0.6.0"
 description = "Local-first live meeting copilot: on-device transcription, live concept explanations and answer hints."
 readme = "README.md"
@@ -38,18 +38,18 @@ dependencies = [
 dev = ["pytest>=8", "ruff>=0.6"]
 
 [project.scripts]
-escuchator-cli = "escuchator.__main__:main"
-escuchator-bench = "escuchator.bench:main"
+pinganillo-cli = "pinganillo.__main__:main"
+pinganillo-bench = "pinganillo.bench:main"
 
 [project.gui-scripts]
-escuchator = "escuchator.__main__:main"
+pinganillo = "pinganillo.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/grebuch/escuchator"
-Issues = "https://github.com/grebuch/escuchator/issues"
+Homepage = "https://github.com/grebuch/pinganillo"
+Issues = "https://github.com/grebuch/pinganillo/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/escuchator"]
+packages = ["src/pinganillo"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -68,5 +68,5 @@ ignore = ["RUF001", "RUF002", "RUF003"]  # Spanish text legitimately uses typogr
 
 [tool.ruff.lint.per-file-ignores]
 # Translation tables and the demo script are prose; wrapping them would hurt readability.
-"src/escuchator/i18n.py" = ["E501"]
-"src/escuchator/demo.py" = ["E501"]
+"src/pinganillo/i18n.py" = ["E501"]
+"src/pinganillo/demo.py" = ["E501"]

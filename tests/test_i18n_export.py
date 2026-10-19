@@ -1,11 +1,11 @@
 import json
 import queue
 
-from escuchator import i18n
-from escuchator.config import Settings
-from escuchator.export import diagnostics_report, session_to_json, session_to_markdown
-from escuchator.llm.analyzers import NoAnalyzer
-from escuchator.pipeline import Session, msg
+from pinganillo import i18n
+from pinganillo.config import Settings
+from pinganillo.export import diagnostics_report, session_to_json, session_to_markdown
+from pinganillo.llm.analyzers import NoAnalyzer
+from pinganillo.pipeline import Session, msg
 
 
 def test_both_languages_define_the_same_keys():

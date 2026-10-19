@@ -1,7 +1,7 @@
 """User settings, persisted as JSON in the per-user config folder.
 
 Secrets are never written here: no tokens, no API keys. An API key can be
-typed in each session or provided through the ``ESCUCHATOR_API_KEY``
+typed in each session or provided through the ``PINGANILLO_API_KEY``
 environment variable.
 """
 
@@ -14,7 +14,7 @@ from pathlib import Path
 
 from .auth.chatgpt import config_dir
 
-API_KEY_ENV = "ESCUCHATOR_API_KEY"
+API_KEY_ENV = "PINGANILLO_API_KEY"
 WHISPER_MODELS = ("small", "base", "medium", "large-v3-turbo")
 SPEECH_LANGUAGES = {"es": "Español", "ca": "Català", "en": "English", "auto": "Auto"}
 

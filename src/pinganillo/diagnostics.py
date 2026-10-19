@@ -1,6 +1,6 @@
 """Command-line self test: no account, no API, nothing saved but a short report.
 
-Run with ``escuchator --diagnose`` while a video with speech is playing.
+Run with ``pinganillo --diagnose`` while a video with speech is playing.
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ def run(engine: str | None = None, seconds: int = 8, report: Path | None = None)
         print(message, flush=True)
         lines.append(str(message))
 
-    log(f"ESCUCHATOR {__version__} · local self-test (no account, no API)")
+    log(f"PINGANILLO {__version__} · local self-test (no account, no API)")
     log("Nothing is recorded to disk. Keep a video with speech playing during the test.")
     log(f"System: {platform.system()} {platform.release()} · Python {sys.version.split()[0]}")
     for name, version in package_versions().items():
@@ -90,7 +90,7 @@ def run(engine: str | None = None, seconds: int = 8, report: Path | None = None)
         log(f"FAILED AT: {step}")
         log(f"{type(exc).__name__}: {exc}")
     finally:
-        path = report or Path.cwd() / "diagnostico-escuchator.txt"
+        path = report or Path.cwd() / "pinganillo-diagnostics.txt"
         path.write_text("\n".join(lines), encoding="utf-8")
         print(f"Report saved to {path} (versions, device names and errors; no audio, no text).")
     return status

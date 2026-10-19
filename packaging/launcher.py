@@ -13,6 +13,6 @@ if sys.stdout is None:
 if sys.stderr is None:
     sys.stderr = open(os.devnull, "w")  # noqa: SIM115
 
-from escuchator.__main__ import main
+from pinganillo.__main__ import main
 
 raise SystemExit(main())

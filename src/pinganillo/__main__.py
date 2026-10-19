@@ -1,4 +1,4 @@
-"""Command-line entry point: ``escuchator`` or ``python -m escuchator``."""
+"""Command-line entry point: ``pinganillo`` or ``python -m pinganillo``."""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ from . import __version__
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="escuchator", description="Local-first live meeting copilot.")
-    parser.add_argument("--version", action="version", version=f"escuchator {__version__}")
+    parser = argparse.ArgumentParser(prog="pinganillo", description="Local-first live meeting copilot.")
+    parser.add_argument("--version", action="version", version=f"pinganillo {__version__}")
     parser.add_argument(
         "--demo", action="store_true", help="scripted meeting: no audio, no model, no account"
     )

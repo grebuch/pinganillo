@@ -1,24 +1,29 @@
 <div align="center">
 
-# Escuchator
+<img src="docs/img/logo.svg" alt="Pinganillo logo: a person pressing an earpiece while a signal comes in" width="112">
+
+# Pinganillo
 
 **A live meeting copilot that runs on your own computer.**
 It listens to what your PC plays, transcribes it locally with Whisper, and quietly explains the jargon and suggests what you could answer.
 
-[![CI](https://github.com/grebuch/escuchator/actions/workflows/ci.yml/badge.svg)](https://github.com/grebuch/escuchator/actions/workflows/ci.yml)
+[![CI](https://github.com/grebuch/pinganillo/actions/workflows/ci.yml/badge.svg)](https://github.com/grebuch/pinganillo/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Python 3.11 | 3.12](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)
 ![Windows](https://img.shields.io/badge/platform-Windows%2010%2F11-informational)
 
 [Español](README.es.md) · [Architecture](docs/architecture.md) · [Design decisions](docs/decisions) · [Responsible use](docs/responsible-use.md)
 
-<img src="docs/img/demo.gif" alt="Escuchator demo: a scripted meeting about backups; concepts and suggested replies appear as people talk" width="900">
+<img src="docs/img/demo.gif" alt="Pinganillo demo: a scripted meeting about backups; concepts and suggested replies appear as people talk" width="900">
 
 </div>
 
 ## Why
 
-You are in a call with a vendor, an auditor or a client, and they start talking about *RPO*, *immutable backups* and *NIS2*. You nod. Escuchator sits next to the call and, a few seconds later, shows you what those terms mean and drafts a reply you could say.
+> In Spanish TV, the *pinganillo* is the tiny earpiece through which the control room whispers to a presenter. You have seen the gesture: a finger pressed to the ear, listening for the cue.
+
+
+You are in a call with a vendor, an auditor or a client, and they start talking about *RPO*, *immutable backups* and *NIS2*. You nod. Pinganillo sits next to the call and, a few seconds later, shows you what those terms mean and drafts a reply you could say.
 
 - **Speech never leaves your PC.** Transcription always runs locally (faster-whisper, int8 on CPU).
 - **The AI is your choice.** Fully local with [Ollama](https://ollama.com) or LM Studio, any OpenAI-compatible server, your ChatGPT plan, or no AI at all.
@@ -30,8 +35,8 @@ You are in a call with a vendor, an auditor or a client, and they start talking 
 **Try it without audio, models or accounts:** the demo mode drives the real pipeline with a scripted meeting.
 
 ```bash
-pip install git+https://github.com/grebuch/escuchator
-escuchator --demo
+pip install git+https://github.com/grebuch/pinganillo
+pinganillo --demo
 ```
 
 **Use it for real on Windows 10/11:**
@@ -83,10 +88,10 @@ Some of the problems this project had to solve. Each one has a short decision re
 
 ## Benchmark
 
-`escuchator-bench` cuts a WAV file exactly like the live app, transcribes it with the real model, replays the timeline as if the audio were arriving live (including queueing when the CPU falls behind) and reports real-time factor, latency percentiles and word error rate:
+`pinganillo-bench` cuts a WAV file exactly like the live app, transcribes it with the real model, replays the timeline as if the audio were arriving live (including queueing when the CPU falls behind) and reports real-time factor, latency percentiles and word error rate:
 
 ```bash
-escuchator-bench meeting.wav --model small --language es --reference meeting.txt --json result.json
+pinganillo-bench meeting.wav --model small --language es --reference meeting.txt --json result.json
 ```
 
 Method and results: [docs/benchmarks.md](docs/benchmarks.md). Results from other machines are welcome as issues.
@@ -102,19 +107,19 @@ Method and results: [docs/benchmarks.md](docs/benchmarks.md). Results from other
 ## Development
 
 ```bash
-git clone https://github.com/grebuch/escuchator && cd escuchator
+git clone https://github.com/grebuch/pinganillo && cd pinganillo
 python -m venv .venv && . .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 pytest                                            # no audio hardware, model or network needed
 ruff check . && ruff format --check .
-python -m escuchator --demo
+python -m pinganillo --demo
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the project layout, how to add a language and good first issues.
 
 ## How this was built
 
-Escuchator started as a Windows prototype written with ChatGPT's help. It was then restructured, tested and documented with Claude's help, one reviewed commit at a time; the [history](https://github.com/grebuch/escuchator/commits/main) shows that path. The reasoning behind every design decision is written down in [`docs/decisions`](docs/decisions).
+Pinganillo started as a Windows prototype called *Escuchator*, written with ChatGPT's help. It was then restructured, tested and documented with Claude's help, one reviewed commit at a time; the [history](https://github.com/grebuch/pinganillo/commits/main) shows that path. The reasoning behind every design decision is written down in [`docs/decisions`](docs/decisions).
 
 ## License
 

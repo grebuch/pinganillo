@@ -114,11 +114,11 @@ EN: dict[str, str] = {
     "error.whisper_load": "Could not load Whisper: {detail}",
     "error.transcription": "Transcription error: {detail}",
     "error.analysis": "AI analysis paused: {detail}. Local transcription continues.",
-    "error.title": "Escuchator",
+    "error.title": "Pinganillo",
     # dialogs
     "dialog.notice_title": "Before you start",
     "dialog.notice_body": (
-        "Escuchator transcribes what your computer plays, including other people's voices.\n\n"
+        "Pinganillo transcribes what your computer plays, including other people's voices.\n\n"
         "• Tell the other participants before using it. Recording and transcription laws differ "
         "between countries; in some places everyone must consent.\n"
         "• With a local provider (or transcription only) nothing leaves this PC. With a cloud "
@@ -134,7 +134,7 @@ EN: dict[str, str] = {
     "dialog.doc_title": "Load reference document (.txt / .md)",
     "dialog.diag_title": "Save diagnostics",
     "notice.text": (
-        "Heads-up: I'm using Escuchator, an open-source assistant that transcribes this call on my "
+        "Heads-up: I'm using Pinganillo, an open-source assistant that transcribes this call on my "
         "computer to help me follow it.{ai_part} Tell me if you'd rather I turn it off."
     ),
     "notice.ai_part": " Short text excerpts are analysed by {provider}.",
@@ -244,10 +244,10 @@ ES: dict[str, str] = {
     "error.whisper_load": "No se pudo cargar Whisper: {detail}",
     "error.transcription": "Error de transcripción: {detail}",
     "error.analysis": "Análisis con IA pausado: {detail}. La transcripción local continúa.",
-    "error.title": "Escuchator",
+    "error.title": "Pinganillo",
     "dialog.notice_title": "Antes de empezar",
     "dialog.notice_body": (
-        "Escuchator transcribe lo que suena en tu ordenador, incluidas las voces de otras personas.\n\n"
+        "Pinganillo transcribe lo que suena en tu ordenador, incluidas las voces de otras personas.\n\n"
         "• Avisa a los demás participantes antes de usarlo. Las leyes sobre grabación y transcripción "
         "cambian según el país; en algunos sitios hace falta el consentimiento de todos.\n"
         "• Con un proveedor local (o solo transcripción) nada sale de este PC. Con un proveedor en la "
@@ -263,7 +263,7 @@ ES: dict[str, str] = {
     "dialog.doc_title": "Cargar documento de referencia (.txt / .md)",
     "dialog.diag_title": "Guardar diagnóstico",
     "notice.text": (
-        "Aviso: estoy usando Escuchator, un asistente de código abierto que transcribe esta llamada en "
+        "Aviso: estoy usando Pinganillo, un asistente de código abierto que transcribe esta llamada en "
         "mi ordenador para ayudarme a seguirla.{ai_part} Dime si prefieres que lo apague."
     ),
     "notice.ai_part": " Fragmentos cortos de texto se analizan con {provider}.",

@@ -53,4 +53,4 @@ For each chunk the pipeline stores the monotonic time at which its audio ended. 
 - `ai`: time spent in the model request
 - `e2e`: end of the oldest chunk in a batch → suggestions ready
 
-The words at the *start* of a chunk wait for up to 12 s more before the chunk closes; that part is inherent to chunked recognition and is why `escuchator-bench` also reports per-chunk start and end times.
+The words at the *start* of a chunk wait for up to 12 s more before the chunk closes; that part is inherent to chunked recognition and is why `pinganillo-bench` also reports per-chunk start and end times.

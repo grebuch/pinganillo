@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QCloseEvent, QGuiApplication, QKeySequence, QShortcut
+from PySide6.QtGui import QCloseEvent, QGuiApplication, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QComboBox,
     QFileDialog,
@@ -50,6 +50,7 @@ from ..llm.prompt import PROFILES, instructions
 from ..llm.providers import PROVIDERS, build_analyzer
 from ..pipeline import Session
 from . import theme
+from .theme import ICON
 
 SAMPLE_PAYLOAD = json.dumps(
     {
@@ -90,7 +91,7 @@ class MainWindow(QMainWindow):
         self.answers: list[dict] = []
         self.chatgpt_models: list[dict] = []
 
-        self.setWindowTitle("Escuchator")
+        self.setWindowTitle("Pinganillo")
         self.resize(1320, 840)
         self._build()
         self._restore()
@@ -115,7 +116,10 @@ class MainWindow(QMainWindow):
         layout.setSpacing(10)
 
         header = QHBoxLayout()
-        brand = QLabel("Escuchator", objectName="brand")
+        logo = QLabel()
+        logo.setPixmap(QIcon(str(ICON)).pixmap(30, 30))
+        header.addWidget(logo)
+        brand = QLabel("Pinganillo", objectName="brand")
         header.addWidget(brand)
         header.addWidget(QLabel(tr("app.tagline"), objectName="tagline"))
         header.addStretch(1)
@@ -773,7 +777,7 @@ class MainWindow(QMainWindow):
         if not self.session:
             return
         path, _ = QFileDialog.getSaveFileName(
-            self, tr("dialog.export_title"), "escuchator-session.md", "Markdown (*.md);;JSON (*.json)"
+            self, tr("dialog.export_title"), "pinganillo-session.md", "Markdown (*.md);;JSON (*.json)"
         )
         if not path:
             return
@@ -786,7 +790,7 @@ class MainWindow(QMainWindow):
 
     def save_diagnostics(self) -> None:
         path, _ = QFileDialog.getSaveFileName(
-            self, tr("dialog.diag_title"), "escuchator-diagnostics.json", "JSON (*.json)"
+            self, tr("dialog.diag_title"), "pinganillo-diagnostics.json", "JSON (*.json)"
         )
         if not path:
             return

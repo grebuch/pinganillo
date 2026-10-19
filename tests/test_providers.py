@@ -3,9 +3,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from escuchator.config import Settings
-from escuchator.llm.analyzers import ChatGPTPlanAnalyzer, NoAnalyzer, OpenAICompatibleAnalyzer
-from escuchator.llm.providers import PROVIDERS, build_analyzer
+from pinganillo.config import Settings
+from pinganillo.llm.analyzers import ChatGPTPlanAnalyzer, NoAnalyzer, OpenAICompatibleAnalyzer
+from pinganillo.llm.providers import PROVIDERS, build_analyzer
 
 
 class HTTPError(Exception):

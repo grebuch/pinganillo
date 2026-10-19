@@ -3,7 +3,7 @@ import wave
 import numpy as np
 import pytest
 
-from escuchator.bench import load_wav, replay, segment, summarise, word_error_rate
+from pinganillo.bench import load_wav, replay, segment, summarise, word_error_rate
 
 
 def test_word_error_rate():

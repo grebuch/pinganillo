@@ -1,19 +1,24 @@
 <div align="center">
 
-# Escuchator
+<img src="docs/img/logo.svg" alt="Logo de Pinganillo: una persona apretándose el pinganillo mientras le llega la señal" width="112">
+
+# Pinganillo
 
 **Un copiloto de reuniones en directo que funciona en tu propio ordenador.**
 Escucha lo que suena en tu PC, lo transcribe en local con Whisper y, discretamente, te explica la jerga y te sugiere qué podrías responder.
 
 [English](README.md) · [Arquitectura](docs/architecture.md) · [Decisiones de diseño](docs/decisions) · [Uso responsable](docs/responsible-use.md)
 
-<img src="docs/img/screenshot-es.png" alt="Escuchator en modo demo: una reunión sobre copias de seguridad con conceptos y respuestas sugeridas" width="900">
+<img src="docs/img/screenshot-es.png" alt="Pinganillo en modo demo: una reunión sobre copias de seguridad con conceptos y respuestas sugeridas" width="900">
 
 </div>
 
 ## Para qué sirve
 
-Estás en una llamada con un proveedor, un auditor o un cliente y empiezan a hablar de *RPO*, *copias inmutables* y *NIS2*. Asientes. Escuchator está al lado de la llamada y, unos segundos después, te muestra qué significan esos términos y te propone una respuesta.
+> El pinganillo es ese auricular diminuto por el que el realizador le sopla al presentador. Seguro que conoces el gesto: el dedo en la oreja, atento a la indicación.
+
+
+Estás en una llamada con un proveedor, un auditor o un cliente y empiezan a hablar de *RPO*, *copias inmutables* y *NIS2*. Asientes. Pinganillo está al lado de la llamada y, unos segundos después, te muestra qué significan esos términos y te propone una respuesta.
 
 - **La voz nunca sale de tu PC.** La transcripción siempre es local (faster-whisper, int8 en CPU).
 - **La IA la eliges tú.** Totalmente local con [Ollama](https://ollama.com) o LM Studio, cualquier servidor compatible con OpenAI, tu plan de ChatGPT o sin IA.
@@ -25,8 +30,8 @@ Estás en una llamada con un proveedor, un auditor o un cliente y empiezan a hab
 **Pruébalo sin audio, modelos ni cuentas:** el modo demo usa el sistema real con una reunión simulada.
 
 ```bash
-pip install git+https://github.com/grebuch/escuchator
-escuchator --demo --lang es
+pip install git+https://github.com/grebuch/pinganillo
+pinganillo --demo --lang es
 ```
 
 **Úsalo de verdad en Windows 10/11:**
@@ -75,14 +80,14 @@ Algunos problemas resueltos:
 pip install -e ".[dev]"
 pytest
 ruff check . && ruff format --check .
-python -m escuchator --demo
+python -m pinganillo --demo
 ```
 
 Detalles en [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Cómo se ha hecho
 
-Escuchator empezó como un prototipo para Windows escrito con ayuda de ChatGPT. Después se reestructuró, se probó y se documentó con ayuda de Claude, cambio a cambio; el [historial](https://github.com/grebuch/escuchator/commits/main) muestra ese camino.
+Pinganillo empezó como un prototipo para Windows llamado *Escuchator*, escrito con ayuda de ChatGPT. Después se reestructuró, se probó y se documentó con ayuda de Claude, cambio a cambio; el [historial](https://github.com/grebuch/pinganillo/commits/main) muestra ese camino.
 
 ## Licencia
 

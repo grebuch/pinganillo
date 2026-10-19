@@ -1,6 +1,6 @@
 """Demo mode: the real pipeline, driven by a scripted meeting.
 
-``escuchator --demo`` runs the actual capture -> transcribe -> analyse threads,
+``pinganillo --demo`` runs the actual capture -> transcribe -> analyse threads,
 but the device synthesises audio, the transcriber returns scripted lines and the
 analyzer returns scripted JSON. It needs no microphone, no model download and no
 account, which makes it handy for screenshots, UI work and trying the app.

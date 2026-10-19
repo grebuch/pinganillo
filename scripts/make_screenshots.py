@@ -18,12 +18,12 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
-from escuchator.config import Settings
-from escuchator.demo import DemoAnalyzer, DemoDevice, DemoTranscriber
-from escuchator.i18n import set_language, tr
-from escuchator.pipeline import Session
-from escuchator.ui.main_window import MainWindow
-from escuchator.ui.theme import STYLESHEET
+from pinganillo.config import Settings
+from pinganillo.demo import DemoAnalyzer, DemoDevice, DemoTranscriber
+from pinganillo.i18n import set_language, tr
+from pinganillo.pipeline import Session
+from pinganillo.ui.main_window import MainWindow
+from pinganillo.ui.theme import STYLESHEET
 
 OUT = Path(__file__).resolve().parent.parent / "docs" / "img"
 

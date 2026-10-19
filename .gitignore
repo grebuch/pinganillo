@@ -11,7 +11,7 @@ dist/
 htmlcov/
 
 # Local runtime files: never commit them
-diagnostico-escuchator.txt
+pinganillo-diagnostics.txt
 diagnostics-*.json
 session-*.json
 *.wav

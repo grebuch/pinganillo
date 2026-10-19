@@ -5,8 +5,8 @@ import queue
 
 import pytest
 
-from escuchator.demo import SCRIPT, DemoAnalyzer, DemoDevice, DemoTranscriber
-from escuchator.pipeline import Session
+from pinganillo.demo import SCRIPT, DemoAnalyzer, DemoDevice, DemoTranscriber
+from pinganillo.pipeline import Session
 
 
 def run_demo(speed=40.0):
@@ -43,7 +43,7 @@ def test_demo_meeting_flows_through_the_real_pipeline():
 def qt_app():
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
     widgets = pytest.importorskip("PySide6.QtWidgets")
-    from escuchator.ui.theme import STYLESHEET
+    from pinganillo.ui.theme import STYLESHEET
 
     app = widgets.QApplication.instance() or widgets.QApplication([])
     app.setStyleSheet(STYLESHEET)
@@ -51,8 +51,8 @@ def qt_app():
 
 
 def test_main_window_builds_and_renders_session_events(qt_app, tmp_path):
-    from escuchator.config import Settings
-    from escuchator.ui.main_window import MainWindow
+    from pinganillo.config import Settings
+    from pinganillo.ui.main_window import MainWindow
 
     class Dev:
         name, isloopback = "Speakers", True
@@ -96,8 +96,8 @@ def test_start_button_runs_a_real_session(qt_app, monkeypatch, speech_block):
     from types import SimpleNamespace
 
     from conftest import FakeDevice
-    from escuchator.config import Settings
-    from escuchator.ui.main_window import MainWindow
+    from pinganillo.config import Settings
+    from pinganillo.ui.main_window import MainWindow
 
     class Model:
         def __init__(self, *args, **kwargs):

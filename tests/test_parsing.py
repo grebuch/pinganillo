@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from escuchator.llm.parsing import parse_analysis
+from pinganillo.llm.parsing import parse_analysis
 
 
 def test_accepts_fenced_json_and_filters_invalid_items():

@@ -1,6 +1,6 @@
 """Reproducible speech-to-text benchmark: latency, real-time factor and WER.
 
-    escuchator-bench meeting.wav --model small --language es --reference meeting.txt
+    pinganillo-bench meeting.wav --model small --language es --reference meeting.txt
 
 The audio file is cut exactly as the live app would cut it (0.5 s blocks and
 the same PauseSegmenter) and each chunk is transcribed with the real model.
@@ -158,7 +158,7 @@ def environment(model: str, threads: int) -> dict[str, str]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="escuchator-bench", description=__doc__.split("\n\n")[0])
+    parser = argparse.ArgumentParser(prog="pinganillo-bench", description=__doc__.split("\n\n")[0])
     parser.add_argument("audio", type=Path, help="16-bit PCM WAV file")
     parser.add_argument("--model", default="small", help="Whisper model (base, small, medium, ...)")
     parser.add_argument("--language", default="es", help="spoken language code, or 'auto'")

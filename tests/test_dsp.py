@@ -1,6 +1,6 @@
 import numpy as np
 
-from escuchator.audio.dsp import for_whisper, resample, rms, to_mono
+from pinganillo.audio.dsp import for_whisper, resample, rms, to_mono
 
 
 def test_opposite_phase_channels_do_not_cancel():

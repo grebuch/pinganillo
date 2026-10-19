@@ -12,7 +12,7 @@ from . import __version__
 from .i18n import tr
 
 
-def session_to_markdown(session: Any, title: str = "Escuchator") -> str:
+def session_to_markdown(session: Any, title: str = "Pinganillo") -> str:
     lines = [f"# {title}", ""]
     if session.summary:
         lines += [f"## {tr('export.heading_summary')}", "", session.summary, ""]
@@ -54,7 +54,7 @@ def diagnostics_report(settings: Any, session: Any | None, extra: dict[str, Any]
     from .diagnostics import package_versions
 
     data: dict[str, Any] = {
-        "escuchator": __version__,
+        "pinganillo": __version__,
         "platform": f"{platform.system()} {platform.release()} ({platform.machine()})",
         "python": sys.version.split()[0],
         "packages": package_versions(),

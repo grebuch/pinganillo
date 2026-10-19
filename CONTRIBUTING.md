@@ -5,11 +5,11 @@ Thanks for helping. Issues, ideas, benchmark results and pull requests are all w
 ## Set up
 
 ```bash
-git clone https://github.com/grebuch/escuchator && cd escuchator
+git clone https://github.com/grebuch/pinganillo && cd pinganillo
 python -m venv .venv && . .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 pytest
-python -m escuchator --demo                       # no audio, model or account needed
+python -m pinganillo --demo                       # no audio, model or account needed
 ```
 
 Tests never touch audio hardware, download models or call the network: devices, Whisper and HTTP clients are replaced by small fakes. Please keep it that way, so CI stays fast and deterministic. The UI test runs headless (`QT_QPA_PLATFORM=offscreen`).
@@ -26,9 +26,9 @@ See [docs/architecture.md](docs/architecture.md) for the module map. In short: `
 
 ## Adding a language
 
-1. Copy the `EN` dictionary in `src/escuchator/i18n.py`, translate the values, and register it in `LANGUAGES`.
+1. Copy the `EN` dictionary in `src/pinganillo/i18n.py`, translate the values, and register it in `LANGUAGES`.
 2. `tests/test_i18n_export.py` checks that every language defines the same keys.
-3. Optionally add a demo script for it in `src/escuchator/demo.py`.
+3. Optionally add a demo script for it in `src/pinganillo/demo.py`.
 
 ## Good first issues
 

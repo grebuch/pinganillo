@@ -2,7 +2,7 @@ import threading
 
 import pytest
 
-from escuchator.llm.deadline import DeadlineCall
+from pinganillo.llm.deadline import DeadlineCall
 
 
 def test_timeout_then_no_parallel_request_then_recovers():

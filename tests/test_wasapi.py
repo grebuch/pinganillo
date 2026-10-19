@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from escuchator.audio.wasapi import WasapiDevice
+from pinganillo.audio.wasapi import WasapiDevice
 
 
 def fake_pyaudio(observed, audio_frames, channels=2, rate=44_100):

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>Pinganillo</title>
+  <defs><clipPath id="c"><rect width="512" height="512" rx="112"/></clipPath></defs>
+  <rect width="512" height="512" rx="112" fill="#1A2230"/>
+  <g clip-path="url(#c)">
+    <!-- head, neck and shoulders -->
+    <ellipse cx="222" cy="190" rx="80" ry="94" fill="#ECE6D9"/>
+    <rect x="194" y="258" width="56" height="90" rx="20" fill="#ECE6D9"/>
+    <path d="M80 540 C80 392 146 332 222 332 C298 332 364 392 364 540 Z" fill="#ECE6D9"/>
+    <!-- dark gap so the raised hand reads in front of the head -->
+    <path d="M420 292 L316 196" fill="none" stroke="#1A2230" stroke-width="70" stroke-linecap="round"/>
+    <circle cx="312" cy="192" r="42" fill="#1A2230"/>
+    <!-- arm and the hand pressing the earpiece -->
+    <path d="M330 372 L420 292 L316 196" fill="none" stroke="#ECE6D9" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="312" cy="192" r="31" fill="#ECE6D9"/>
+    <!-- the cue coming in from the control room -->
+    <path d="M364 132 A70 70 0 0 1 412 182" fill="none" stroke="#F2B544" stroke-width="20" stroke-linecap="round"/>
+    <path d="M372 82 A118 118 0 0 1 462 176" fill="none" stroke="#F2B544" stroke-width="20" stroke-linecap="round"/>
+  </g>
+</svg>
