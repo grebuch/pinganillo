@@ -2,6 +2,12 @@
 
 All notable changes to this project. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- The Windows launcher now finds Python installed with pyenv-win or on PATH, and keeps an error log.
+- The window no longer waits for audio device enumeration, which some drivers can block for minutes.
+
 ## [0.6.0] - 2026-10-19
 
 First public release.

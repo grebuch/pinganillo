@@ -74,6 +74,8 @@ Algunos problemas resueltos:
 - El corte de los bloques se basa en el volumen y puede partir una frase.
 - Las sugerencias llegan segundos después de la pregunta y pueden equivocarse. Compruébalas.
 
+Los próximos pasos están en la [hoja de ruta](docs/roadmap.md) (en inglés); la próxima versión se centra en reducir el retraso.
+
 ## Desarrollo
 
 ```bash

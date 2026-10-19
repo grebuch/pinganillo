@@ -104,6 +104,8 @@ Method and results: [docs/benchmarks.md](docs/benchmarks.md). Results from other
 - Suggestions arrive seconds after the question. They are better at explaining concepts than at real-time repartee.
 - Suggestions can be wrong. The model is told not to invent facts, but verify before relying on them.
 
+Next steps are in the [roadmap](docs/roadmap.md); the next release focuses on cutting latency.
+
 ## Development
 
 ```bash
